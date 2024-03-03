@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from geotifing.map import GeotifyMapVisualizer
+from geotify.map import GeotifyMapVisualizer
 
 class TestGeotifyMapVisualizer(unittest.TestCase):
     @patch('geotify.map.os.getenv', return_value=None)
