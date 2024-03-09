@@ -15,7 +15,7 @@ class GeotifyMapVisualizer:
         # GEOTIFY_GEOJSON_FILE 환경 변수가 설정되어 있는지 확인. -> 사용자 입력 받을 수 있게
         DEFAULT_JSON_PATH = (
             Path(__file__).parent.parent
-            / "assets"
+            / "asset"
             / "skorea_municipalities_geo_simple.json"
         )
         geojson_file_path = os.getenv("GEOTIFY_GEOJSON_FILE", DEFAULT_JSON_PATH)
@@ -35,7 +35,7 @@ class GeotifyMapVisualizer:
     # 전체 지도 시각화 시, 기본 지도 배경 설정 값 흰색으로 지정
     def visualize_map(self, region_name=None, color="white"):
         if region_name:
-            region = self.geo_data[self.geo_data["name"] == region_name]
+            region = self.geo_data[self.geo_data["name_eng"] == region_name]
         else:
             region = self.geo_data
 
@@ -54,5 +54,5 @@ if __name__ == "__main__":
     map_visualizer = GeotifyMapVisualizer()
 
     # 시각화를 원하는 지역 이름과 색상을 입력하여 visualize_map 함수 호출
-    map_visualizer.visualize_map(region_name="남원시", color="blue")
-    map_visualizer.visualize_map()
+    map_visualizer.visualize_map(region_name="Gwangyang-si", color="blue")
+    map_visualizer.visualize_map() #이건 아무것도 입력 해 주지 않았을 경우

@@ -1,2 +1,0 @@
-# geotify
-Geotifying
