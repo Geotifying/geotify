@@ -3,8 +3,14 @@ from pathlib import Path
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
-import pandas as pd 
+from matplotlib import rc
+from rich import inspect
+
+rc("font", family="AppleGothic")
+plt.rcParams["axes.unicode_minus"] = False
+
 
 class GeotifyMapVisualizer:
     def __init__(self):
@@ -69,27 +75,95 @@ class HeatmapVisualizer:
 
     def visualize_heatmap(self, region_names, value_column):
         # region_names에 해당하는 행만 추출
-        selected_data = self.population_data[self.population_data["동별(2)"].isin(region_names)]
-
-        # "동별(2)" 대신 "소계" 등의 값 대신에 지역 이름으로 변경
-        selected_data = selected_data.replace({"소계": "합계"})
+        sgg_data = self.load_geojson(
+            Path(__file__)
+            .parent.with_name("asset")
+            .joinpath("skorea_municipalities_geo_simple.json")
+        )
+        seoul_map = sgg_data[sgg_data["CTPRVN_CD"] == "11"]
+        selected_data = self.population_data[
+            self.population_data["동별(2)"].isin(region_names)
+        ]
 
         # 지도 위에 히트맵 추가
         fig, ax = plt.subplots(figsize=(10, 10))
-        self.geo_data.plot(ax=ax, facecolor="white", edgecolor="black")
-        selected_data.plot(column=value_column, cmap="YlGnBu", linewidth=0.8, ax=ax, legend=True)
+        selected_data = seoul_map.merge(
+            selected_data, how="left", right_on="동별(2)", left_on="name"
+        )
+        selected_data.plot(
+            column=value_column,
+            cmap="YlGnBu",
+            ax=ax,
+            legend=True,
+            edgecolor="black",
+            missing_kwds={
+                "color": "lightgrey",
+                "edgecolor": "red",
+                "hatch": "///",
+                "label": "Missing values",
+            },
+        )
 
-        plt.title(f"Population Density Heatmap - Regions: {', '.join(region_names)}, Value Column: {value_column}")
+        plt.title(
+            f"Population Density Heatmap - Regions: {', '.join(region_names)}, Value Column: {value_column}"
+        )
+
         plt.show()
 
+    def visualize_barchart(self, region_names, value_column):
+        # region_names에 해당하는 행만 추출
+        sgg_data = self.load_geojson(
+            Path(__file__)
+            .parent.with_name("asset")
+            .joinpath("skorea_municipalities_geo_simple.json")
+        )
+        seoul_map = sgg_data[sgg_data["CTPRVN_CD"] == "11"]
+        selected_data = self.population_data[
+            self.population_data["동별(2)"].isin(region_names)
+        ]
+
+        # 지도 위에 히트맵 추가
+        # fig, ax = plt.subplots(figsize=(10, 10))
+        fig = plt.figure()
+        ax = fig.add_axes([0, 0, 1, 1])
+        selected_data = seoul_map.merge(
+            selected_data, how="left", right_on="동별(2)", left_on="name"
+        )
+        selected_data.plot(
+            column=value_column,
+            cmap="YlGnBu",
+            ax=ax,
+            legend=True,
+            edgecolor="black",
+            missing_kwds={
+                "color": "lightgrey",
+                "edgecolor": "red",
+                "hatch": "///",
+                "label": "Missing values",
+            },
+        )
+        lat, lon = 37, 127
+        ax_bar = fig.add_axes([0.3 * (1 + lon / 180), 0.2 * (1 + lat / 90), 0.05, 0.05])
+        ax_bar.bar([1, 2], [100, 0])
+        ax_bar.set_axis_off()
+
+        plt.title(
+            f"Population Density Heatmap - Regions: {', '.join(region_names)}, Value Column: {value_column}"
+        )
+
+        plt.show()
+
+
 if __name__ == "__main__":
-    density_visualizer = HeatmapVisualizer(
-        "/Users/songle/Geotify/asset/skorea_municipalities_geo_simple.json",
-        "/Users/songle/Geotify/asset/인구밀도_20240309190931.csv"
-    )
+    ASSETS_PATH = Path(__file__).parent.with_name("asset")
+    map_data_path = ASSETS_PATH.joinpath("skorea_municipalities_geo_simple.json")
+    population_density_data = ASSETS_PATH.joinpath("인구밀도_20240309190931.csv")
+    density_visualizer = HeatmapVisualizer(map_data_path, population_density_data)
 
     # 인구밀도 시각화
     region_names = ["강북구", "강남구", "서초구"]
-    value_column = "인구밀도 (명/㎢)" 
+    value_column = "인구밀도 (명/㎢)"
 
-    density_visualizer.visualize_heatmap(region_names, value_column)
+    # density_visualizer.visualize_heatmap(region_names, value_column)
+
+    density_visualizer.visualize_barchart(region_names, value_column)
