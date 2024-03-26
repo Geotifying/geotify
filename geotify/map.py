@@ -1,13 +1,14 @@
+import json
 import os
 from pathlib import Path
-import json
+
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import rc
 from rich import inspect
-import numpy as np
 
 rc("font", family="AppleGothic")
 plt.rcParams["axes.unicode_minus"] = False
@@ -37,8 +38,7 @@ class GeotifyMapVisualizer:
             return geo_data
         except ValueError as e:
             raise ValueError(f"Error loading GeoJSON file: {e}")
-        
-        
+
     def visualize_map(self, region_names=None, color="white"):
         if region_names:
             regions = self.geo_data[self.geo_data["name"].isin(region_names)]
@@ -54,6 +54,7 @@ class GeotifyMapVisualizer:
         plt.title(f"GeotifyMap Visualization : Region Names: {region_names}")
         plt.show()
 
+
 class HeatmapVisualizer:
     def __init__(self, geojson_file_path, csv_file_path):
         self.geo_data = self.load_geojson(geojson_file_path)
@@ -64,7 +65,7 @@ class HeatmapVisualizer:
             geo_data = gpd.read_file(geojson_file_path, encoding="utf-8")
             return geo_data
         except ValueError as e:
-            raise ValueError(f"Error loading GeoJSON file: {e}")    
+            raise ValueError(f"Error loading GeoJSON file: {e}")
 
     def load_data(self, csv_file_path):
         try:
@@ -75,9 +76,9 @@ class HeatmapVisualizer:
             raise
 
     def calculate_polygon_center(self, coordinates):
-        if len(coordinates) == 1: 
+        if len(coordinates) == 1:
             polygon = coordinates[0]
-        else:  
+        else:
             polygon = np.concatenate(coordinates)
         total_x = 0
         total_y = 0
@@ -123,17 +124,17 @@ class HeatmapVisualizer:
 
         for region_name in region_names:
             region_data = selected_data[selected_data["동별(2)"] == region_name]
-            coordinates = region_data["geometry"].iloc[0].exterior.coords.xy
-            center_x, center_y = np.mean(coordinates[0]), np.mean(coordinates[1])
-            ax_bar = fig.add_axes([center_x - 0.02, center_y - 0.02, 0.5, 0.5])
-            ax_bar.bar([1, 2], [100, 0])
+            coordinates = region_data["geometry"].iloc[0].centroid
+            ax_bar = fig.add_axes([0.475, 0.625, 1, 1])
+            ax_bar.bar([1, 2], [10, 0], color="red")
+            ax_bar.set_xticks(ax.get_xticks())
+            ax_bar.set_yticks(ax.get_yticks())
             ax_bar.set_axis_off()
 
         plt.title(
             f"Population Density Heatmap - Regions: {', '.join(region_names)}, Value Column: {value_column}"
         )
         plt.show()
-
 
 
 if __name__ == "__main__":
@@ -145,7 +146,6 @@ if __name__ == "__main__":
     # 인구밀도 시각화
     region_names = ["강북구", "강남구", "서초구"]
     value_column = "인구밀도 (명/㎢)"
-
 
     # density_visualizer.visualize_heatmap(region_names, value_column)
 
