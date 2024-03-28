@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 import geopandas as gpd
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -53,6 +54,7 @@ class GeotifyMapVisualizer:
         regions.plot(ax=ax, facecolor=color, edgecolor="black")
         plt.title(f"GeotifyMap Visualization : Region Names: {region_names}")
         plt.show()
+
 
 class HeatmapVisualizer:
     def __init__(self, geojson_file_path, csv_file_path):
@@ -123,18 +125,23 @@ class HeatmapVisualizer:
 
         for region_name in region_names:
             region_data = selected_data[selected_data["동별(2)"] == region_name]
-            population_density = region_data[value_column].values[0] 
-            ax_bar = fig.add_axes([0.475, 0.625, 0.05, 0.05])  
-            ax_bar.bar(region_name, population_density, color="blue") 
-            # ax_bar.set_axis_off()
-            ax_bar.set_title(region_name)
-
+            coordinates = region_data["geometry"].iloc[0].centroid
+            population_density = region_data[value_column].values[0]
+            ax.add_patch(
+                patches.Rectangle(
+                    (coordinates.x, coordinates.y),  # (x, y)
+                    0.01,
+                    population_density / 25315 / 10,  # width, height
+                    edgecolor="black",
+                    facecolor="red",
+                    fill=True,
+                )
+            )
 
         plt.title(
             f"Population Density Heatmap - Regions: {', '.join(region_names)}, Value Column: {value_column}"
         )
         plt.show()
-        
 
 
 if __name__ == "__main__":
@@ -152,4 +159,4 @@ if __name__ == "__main__":
     density_visualizer.visualize_barchart(region_names, value_column)
 
     geotify_map = GeotifyMapVisualizer()
-    geotify_map.visualize_map()
+    # geotify_map.visualize_map()
