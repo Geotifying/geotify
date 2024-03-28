@@ -54,7 +54,6 @@ class GeotifyMapVisualizer:
         plt.title(f"GeotifyMap Visualization : Region Names: {region_names}")
         plt.show()
 
-
 class HeatmapVisualizer:
     def __init__(self, geojson_file_path, csv_file_path):
         self.geo_data = self.load_geojson(geojson_file_path)
@@ -124,17 +123,18 @@ class HeatmapVisualizer:
 
         for region_name in region_names:
             region_data = selected_data[selected_data["동별(2)"] == region_name]
-            coordinates = region_data["geometry"].iloc[0].centroid
-            ax_bar = fig.add_axes([0.475, 0.625, 1, 1])
-            ax_bar.bar([1, 2], [10, 0], color="red")
-            ax_bar.set_xticks(ax.get_xticks())
-            ax_bar.set_yticks(ax.get_yticks())
-            ax_bar.set_axis_off()
+            population_density = region_data[value_column].values[0] 
+            ax_bar = fig.add_axes([0.475, 0.625, 0.05, 0.05])  
+            ax_bar.bar(region_name, population_density, color="blue") 
+            # ax_bar.set_axis_off()
+            ax_bar.set_title(region_name)
+
 
         plt.title(
             f"Population Density Heatmap - Regions: {', '.join(region_names)}, Value Column: {value_column}"
         )
         plt.show()
+        
 
 
 if __name__ == "__main__":
