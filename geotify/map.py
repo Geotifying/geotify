@@ -127,16 +127,17 @@ class HeatmapVisualizer:
             region_data = selected_data[selected_data["동별(2)"] == region_name]
             coordinates = region_data["geometry"].iloc[0].centroid
             population_density = region_data[value_column].values[0]
-            ax.add_patch(
+            bar = ax.add_patch(
                 patches.Rectangle(
                     (coordinates.x, coordinates.y),  # (x, y)
                     0.01,
-                    population_density / 25315 / 10,  # width, height
+                    population_density / 25315 / 20,  # width, height
                     edgecolor="black",
                     facecolor="red",
                     fill=True,
                 )
             )
+            plt.text(bar.xy[0], bar.xy[1], str(population_density), color="white")
 
         plt.title(
             f"Population Density Heatmap - Regions: {', '.join(region_names)}, Value Column: {value_column}"
