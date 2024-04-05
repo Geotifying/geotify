@@ -116,9 +116,9 @@ class HeatmapVisualizer:
             legend=True,
             edgecolor="black",
             missing_kwds={
-                "color": "lightgrey",
+                "color": "white",
                 "edgecolor": "red",
-                "hatch": "///",
+                # "hatch": "///",
                 "label": "Missing values",
             },
         )
@@ -127,13 +127,16 @@ class HeatmapVisualizer:
             region_data = selected_data[selected_data["동별(2)"] == region_name]
             coordinates = region_data["geometry"].iloc[0].centroid
             population_density = region_data[value_column].values[0]
+
+            color = plt.cm.YlGnBu(population_density / selected_data[value_column].max())
+
             ax.add_patch(
                 patches.Rectangle(
                     (coordinates.x, coordinates.y),  # (x, y)
                     0.01,
                     population_density / 25315 / 10,  # width, height
                     edgecolor="black",
-                    facecolor="red",
+                    facecolor=color,
                     fill=True,
                 )
             )
