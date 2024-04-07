@@ -1,15 +1,13 @@
-import json
 import os
 from pathlib import Path
 
 import geopandas as gpd
-import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import numpy as np
 import pandas as pd
-import seaborn as sns
-from matplotlib import rc
 from rich import inspect
+from matplotlib import rc
 
 rc("font", family="AppleGothic")
 plt.rcParams["axes.unicode_minus"] = False
@@ -70,47 +68,25 @@ class HeatmapVisualizer:
 
     def load_data(self, csv_file_path):
         try:
-            csv_data = pd.read_csv(csv_file_path)
+            csv_data = pd.read_csv(csv_file_path, encoding="utf-8")
             return csv_data
+        except UnicodeDecodeError:
+            try:
+                csv_data = pd.read_csv(csv_file_path, encoding="cp949")
+                return csv_data
+            except Exception as e:
+                print("Error loading CSV file")
+                raise
         except FileNotFoundError:
             print("CSV file not found at path")
             raise
-
-    def calculate_polygon_center(self, coordinates):
-        try:
-            if len(coordinates) == 1:
-                polygon = coordinates[0]
-            else:
-                polygon = np.concatenate(coordinates)
-            total_x = 0
-            total_y = 0
-            num_points = 0
-            for ring in polygon:
-                for point in ring:
-                    x, y = point
-                    total_x += x
-                    total_y += y
-                    num_points += 1
-            center_x = total_x / num_points
-            center_y = total_y / num_points
-            return (center_x, center_y)
-        except Exception as e:
-                print("Error calculation polygon center")
-                raise
 
     def visualize_barchart(self, region_names, value_column):
         if len(region_names) > 6:
             raise ValueError("The maximum number of region_names should be 6 or lower")
         
-        sgg_data = self.load_geojson(
-            Path(__file__)
-            .parent.with_name("asset")
-            .joinpath("skorea_municipalities_geo_simple.json")
-        )
-        seoul_map = sgg_data[sgg_data["CTPRVN_CD"] == "11"]
-        selected_data = self.population_data[
-            self.population_data["동별(2)"].isin(region_names)
-        ]
+        seoul_map = self.geo_data[self.geo_data["CTPRVN_CD"] == "11"]
+        selected_data = self.population_data[self.population_data["동별(2)"].isin(region_names)]
 
         fig, ax = plt.subplots(figsize=(10, 10))
         selected_data = seoul_map.merge(
@@ -125,7 +101,6 @@ class HeatmapVisualizer:
             missing_kwds={
                 "color": "white",
                 "edgecolor": "red",
-                # "hatch": "///",
                 "label": "Missing values",
             },
         )
@@ -139,9 +114,9 @@ class HeatmapVisualizer:
 
             ax.add_patch(
                 patches.Rectangle(
-                    (coordinates.x, coordinates.y),  # (x, y)
+                    (coordinates.x, coordinates.y),
                     0.01,
-                    population_density / 25315 / 10,  # width, height
+                    population_density / 25315 / 10,
                     edgecolor="black",
                     facecolor=color,
                     fill=True,
@@ -163,8 +138,6 @@ if __name__ == "__main__":
     # 인구밀도 시각화
     region_names = ["강북구", "강남구", "서초구", "용산구", "노원구", "동대문구"]
     value_column = "인구밀도 (명/㎢)"
-
-    # density_visualizer.visualize_heatmap(region_names, value_column)
 
     density_visualizer.visualize_barchart(region_names, value_column)
 
