@@ -31,9 +31,9 @@ class GeotifyMapVisualizer:
 
     def load_geojson(self):
         if not self.geojson_file.exists():
-            raise FileExistsError
+            raise FileExistsError("GeoJSON file not found")
         if not self.geojson_file.is_file():
-            raise FileNotFoundError
+            raise FileNotFoundError("Invalid file at path")
         try:
             geo_data = gpd.read_file(self.geojson_file, encoding="utf-8")
             return geo_data
@@ -48,7 +48,7 @@ class GeotifyMapVisualizer:
 
         if regions.empty:
             print(f"Regions with names {region_names} not found.")
-            raise
+            return
 
         _, ax = plt.subplots(figsize=(10, 10))
         regions.plot(ax=ax, facecolor=color, edgecolor="black")
@@ -66,33 +66,37 @@ class HeatmapVisualizer:
             geo_data = gpd.read_file(geojson_file_path, encoding="utf-8")
             return geo_data
         except ValueError as e:
-            raise ValueError(f"Error loading GeoJSON file: {e}")
+            raise ValueError("Error loading GeoJSON file")
 
     def load_data(self, csv_file_path):
         try:
             csv_data = pd.read_csv(csv_file_path)
             return csv_data
         except FileNotFoundError:
-            print(f"CSV file not found at path: {csv_file_path}")
+            print("CSV file not found at path")
             raise
 
     def calculate_polygon_center(self, coordinates):
-        if len(coordinates) == 1:
-            polygon = coordinates[0]
-        else:
-            polygon = np.concatenate(coordinates)
-        total_x = 0
-        total_y = 0
-        num_points = 0
-        for ring in polygon:
-            for point in ring:
-                x, y = point
-                total_x += x
-                total_y += y
-                num_points += 1
-        center_x = total_x / num_points
-        center_y = total_y / num_points
-        return (center_x, center_y)
+        try:
+            if len(coordinates) == 1:
+                polygon = coordinates[0]
+            else:
+                polygon = np.concatenate(coordinates)
+            total_x = 0
+            total_y = 0
+            num_points = 0
+            for ring in polygon:
+                for point in ring:
+                    x, y = point
+                    total_x += x
+                    total_y += y
+                    num_points += 1
+            center_x = total_x / num_points
+            center_y = total_y / num_points
+            return (center_x, center_y)
+        except Exception as e:
+                print("Error calculation polygon center")
+                raise
 
     def visualize_barchart(self, region_names, value_column):
         sgg_data = self.load_geojson(
@@ -154,7 +158,7 @@ if __name__ == "__main__":
     density_visualizer = HeatmapVisualizer(map_data_path, population_density_data)
 
     # 인구밀도 시각화
-    region_names = ["강북구", "강남구", "서초구"]
+    region_names = ["강북구", "강남구", "서초구", "용산구", "노원구", "동대문구"]
     value_column = "인구밀도 (명/㎢)"
 
     # density_visualizer.visualize_heatmap(region_names, value_column)
