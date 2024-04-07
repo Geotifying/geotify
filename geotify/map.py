@@ -99,6 +99,9 @@ class HeatmapVisualizer:
                 raise
 
     def visualize_barchart(self, region_names, value_column):
+        if len(region_names) > 6:
+            raise ValueError("The maximum number of region_names should be 6 or lower")
+        
         sgg_data = self.load_geojson(
             Path(__file__)
             .parent.with_name("asset")
