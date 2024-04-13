@@ -133,14 +133,14 @@ class BarChartVisualizer(Visualizer):
         if len(region_names) > 10:
             logger.warning(f"Visualizing more than 10 elements can be difficult to see.")
         
-        seoul_map = self.geo_data[self.geo_data["CTPRVN_CD"] == self.region_code]
+        map = self.geo_data[self.geo_data["CTPRVN_CD"] == self.region_code]
         selected_data = self.population_data[
             self.population_data[self.region_key].isin(region_names)
         ]
 
         fig, ax = plt.subplots(figsize=(10, 10))
 
-        selected_data = seoul_map.merge(
+        selected_data = map.merge(
             selected_data, how="left", right_on=self.region_key, left_on="name"
         )
         selected_data.plot(
@@ -156,20 +156,22 @@ class BarChartVisualizer(Visualizer):
             },
         )
 
+        max_population_density = selected_data[value_column].max()
+
         for region_name in region_names:
             region_data = selected_data[selected_data[self.region_key] == region_name]
             coordinates = region_data["geometry"].iloc[0].centroid
             population_density = region_data[value_column].values[0]
 
-            color = plt.cm.YlGnBu(
-                population_density / selected_data[value_column].max()
-            )
+            scaled_population_density = population_density / max_population_density
+
+            color = plt.cm.YlGnBu(scaled_population_density)
 
             ax.add_patch(
                 patches.Rectangle(
                     (coordinates.x, coordinates.y),
                     0.01,
-                    population_density / 25315 / 10,
+                    scaled_population_density / 10,
                     edgecolor="black",
                     facecolor=color,
                     fill=True,
