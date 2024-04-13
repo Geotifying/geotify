@@ -179,7 +179,5 @@ if __name__ == "__main__":
 
     density_visualizer.visualize(region_names, value_column)
 
-    1 / 0
-
     geotify_map = HeatmapVisualizer(map_data_path, population_density_data)
     geotify_map.visualize()
