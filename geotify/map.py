@@ -127,7 +127,8 @@ class BarChartVisualizer(Visualizer):
     def preprocess_map_data(self) -> Any:
         pass
 
-    def visualize(self, region_names: List[str], value_column: str) -> None:  # type: ignore
+    def visualize(self, region_names: List[str], value_column: str, cmap: str = "YlGnBu",
+                  missing_color: str="white",missing_edgecolor: str = "red") -> None:  # type: ignore
         logger.info(f"Starting visualization with region names: {region_names}, value column: {value_column}")
 
         if len(region_names) > 10:
@@ -137,7 +138,8 @@ class BarChartVisualizer(Visualizer):
         selected_data = self.population_data[
             self.population_data[self.region_key].isin(region_names)
         ]
-
+        
+        selected_data = selected_data.dropna(subset=[value_column])
         fig, ax = plt.subplots(figsize=(10, 10))
 
         selected_data = map.merge(
@@ -145,13 +147,13 @@ class BarChartVisualizer(Visualizer):
         )
         selected_data.plot(
             column=value_column,
-            cmap="YlGnBu",
+            cmap=cmap,
             ax=ax,
             legend=True,
             edgecolor="black",
             missing_kwds={
-                "color": "white",
-                "edgecolor": "red",
+                "color": missing_color,
+                "edgecolor": missing_edgecolor,
                 "label": "Missing values",
             },
         )
@@ -191,7 +193,7 @@ if __name__ == "__main__":
     map_data_path = ASSETS_PATH.joinpath("skorea_municipalities_geo_simple.json")
     population_density_data = ASSETS_PATH.joinpath("인구밀도_20240309190931.csv")
     density_visualizer = BarChartVisualizer(
-        map_data_path, population_density_data, RegionCodeEnum.SEOUL, "동별(2)"
+        map_data_path, population_density_data, RegionCodeEnum.서울특별시, "동별(2)"
     )
 
     # 인구밀도 시각화
@@ -202,4 +204,4 @@ if __name__ == "__main__":
     density_visualizer.visualize(region_names, value_column)
 
     geotify_map = HeatmapVisualizer(map_data_path, population_density_data)
-    geotify_map.visualize()
+    geotify_map.visualize(region_names=["강북구", "강남구"], color="lightblue")
