@@ -48,16 +48,19 @@ class Visualizer:
             logger.warning(f"{geojson_file_path} is not exists.")
             raise
         if not geojson_file_path.is_file():
-            raise
+            logger.error(f"[geojson_file_path] is not a valid file.")
+            raise ValueError(f"Provided path{geojson_file_path} is not a file.")
+        
         self.geo_data = self.load_geojson(geojson_file_path)
         self.population_data = self.load_data(csv_file_path)
 
-    def load_geojson(self, geojson_file_path: Path) -> GeoDataFrame:
+    def load_geojson(self, geojson_file_path: Path, encoding: str = "utf-8") -> GeoDataFrame:
         try:
-            geo_data = gpd.read_file(geojson_file_path, encoding="utf-8")
+            geo_data = gpd.read_file(geojson_file_path, encoding=encoding)
             return geo_data
         except ValueError as e:
-            raise ValueError("Error loading GeoJSON file")
+            logger.error(f"Error loading GeoJSON file {geojson_file_path} with encoding {encoding} : {e}")
+            raise ValueError(f"Error loading GeoJson file with encoding {encoding}:{e}")from e
 
     def load_data(self, csv_file_path: Path, encoding="utf-8") -> DataFrame:
         try:
@@ -66,12 +69,16 @@ class Visualizer:
         except UnicodeDecodeError:
             logger.error(f"Invalid encoding {encoding=!r}")
         except ValueError as e:
-            raise ValueError("Error loading GeoJSON file")
+            logger.error(f"Error loading CSV file {csv_file_path} with encoding{encoding}:{e}")
+            raise ValueError("Error loading CSV file") from e
         except Exception as e:
-            logger.exception("Unexpected Exception: ", e)
+            logger.exception("Unexpected Exception while loading CSV file: ", exc_info=e)
 
     def visualize(self) -> None:
-        raise NotImplementedError
+        logger.error("The visualize method has not been implemented. "
+                     "using the geo_data and population_data attributes"
+                     "example : density_visualizer.visualize(region_names, value_column)")
+        raise NotImplementedError("The 'visualize' method has not been implemented. ")
 
 
 class HeatmapVisualizer(Visualizer):
@@ -174,8 +181,6 @@ if __name__ == "__main__":
     region_names = ["강북구", "강남구", "서초구", "용산구", "노원구", "동대문구"]
     value_column = "인구밀도 (명/㎢)"
 
-    logger.info("hello")
-    logger.error("error")
 
     density_visualizer.visualize(region_names, value_column)
 
