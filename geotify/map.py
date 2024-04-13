@@ -34,12 +34,23 @@ logger.setLevel(logging.INFO)
 
 
 class RegionCodeEnum(Enum):
-    SEOUL = "11"
-    ...
-
-
-class RegionCode:
-    SEOUL = "11"
+     서울특별시 = "11"
+     광주광역시 = "29"
+     세종특별자치시 = "36"
+     울산광역시 = "31"
+     부산광역시 = "26"
+     대구광역시 = "27"
+     인천광역시 = "28"
+     전북특별자치도 = "45"
+     충청남도 = "44"
+     강원특별자치도 = "42"
+     경기도 = "41"
+     경상북도 = "47"
+     경상남도 = "48"
+     전라남도 = "46"
+     대전광역시 = "30"
+     충청북도 = "43"
+     제주특별자치도 = "50"
 
 
 class Visualizer:
@@ -92,7 +103,7 @@ class HeatmapVisualizer(Visualizer):
             regions = self.geo_data
 
         if regions.empty:
-            print(f"Regions with names {region_names} not found.")
+            logger.warning(f"Regions with names {region_names} not found")
             return
 
         _, ax = plt.subplots(figsize=(10, 10))
@@ -117,16 +128,18 @@ class BarChartVisualizer(Visualizer):
         pass
 
     def visualize(self, region_names: List[str], value_column: str) -> None:  # type: ignore
-        logger.info("visualize")
-        if len(region_names) > 6:
-            raise ValueError("The maximum number of region_names should be 6 or lower")
+        logger.info(f"Starting visualization with region names: {region_names}, value column: {value_column}")
 
+        if len(region_names) > 10:
+            logger.warning(f"Visualizing more than 10 elements can be difficult to see.")
+        
         seoul_map = self.geo_data[self.geo_data["CTPRVN_CD"] == self.region_code]
         selected_data = self.population_data[
             self.population_data[self.region_key].isin(region_names)
         ]
 
         fig, ax = plt.subplots(figsize=(10, 10))
+
         selected_data = seoul_map.merge(
             selected_data, how="left", right_on=self.region_key, left_on="name"
         )
@@ -167,6 +180,8 @@ class BarChartVisualizer(Visualizer):
             f"Population Density Heatmap - Regions: {', '.join(region_names)}, Value Column: {value_column}"
         )
         plt.show()
+
+        logger.info(f"Visualization completed successfully for regions: {region_names}")
 
 
 if __name__ == "__main__":
