@@ -136,7 +136,7 @@ class BarChartVisualizer(Visualizer):
         region_code: RegionCodeEnum,
         region_key: str,
     ) -> None:
-        self.region_code = region_code
+        self.region_code = region_code.value
         self.region_key = region_key
         super().__init__(geojson_file_path, csv_file_path)
 
