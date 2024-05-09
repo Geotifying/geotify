@@ -35,3 +35,6 @@ exclude = ["test"]    # 하위의 tests 경로는 제외
 
 [project.scripts]    # 명령어로 실행하면 호출할 함수 정의 (entry_points와 동일)
 geotify="geotify.command:main"    # pyloncli 명령어는 pyloncli.main.py의 main 함수 호출
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

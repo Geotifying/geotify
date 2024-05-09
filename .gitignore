@@ -1,5 +1,5 @@
 forgeotify
 .DS_Store
-geotify/__pycache__
+__pycache__
 dist
 *.egg-info
