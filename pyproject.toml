@@ -38,3 +38,5 @@ geotify="geotify.command:main"    # pyloncli 명령어는 pyloncli.main.py의 ma
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+testpaths = ["test"]
+python_files = ["test*.py"]
