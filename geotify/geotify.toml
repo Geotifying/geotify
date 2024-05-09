@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geotify"
+description = "Command Line Interface for Pylon Project"
+readme = 'README.md"
+requires-python = ">=3.9"
+
+classifiers = [
+    'Environment:: Console',
+    'Operating System :: POSIX :: LINUX',
+    'Programming Language :: Python :: 3.8'
+]
+dynamic = ["version", "dependencies"]
+
+[tool.setuptools.dynamic]
+version = {file = ["VERSION" ]}
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+where = ["."] #pyproject.toml이 위치한 경로 include = [geotify*"]
+[tool.setuptools.package-data]
+"*"= ["*.yml"]
+
+[project.scripts]
+pyloncli="geotify.map:main"
