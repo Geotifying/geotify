@@ -3,3 +3,4 @@ forgeotify
 __pycache__
 dist
 *.egg-info
+venv
