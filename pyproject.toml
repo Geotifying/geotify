@@ -10,11 +10,11 @@ description = "geotify"    # 패키지 간단 설명
 readme = "README.md"    # README.md 파일 경로
 requires-python = ">=3.10"    # 파이썬 최소 버전
 classifiers = [
-    'Environment :: Console',    # 실행환경 (GUI or Console)
-    'Operating System :: MACOS',    # 실행환경 (OS)
-    'Operating System :: POSIX :: LINUX',    # 실행환경 (OS)
-    'Programming Language :: Python :: 3',    # 프로그래밍 언어와 버전
-    'Programming Language :: Python :: 3.10'    # 프로그래밍 언어와 버전
+     "Environment :: Console",
+     'Environment :: MacOS X',
+     "Operating System :: POSIX :: Linux",
+     "Programming Language :: Python :: 3",
+     "Programming Language :: Python :: 3.10"
 ]
 dynamic = ["version", "dependencies"]    # 동적 메타데이터 항목 정의
 
