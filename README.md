@@ -2,16 +2,17 @@
 
 Visualization tools suitable for geographic data.
 
-## introduction
+## Introduction
 
 geotify is a library that visualizes desired data on top of geographic data.
 
-## install
+## Install
 
 Geotify depends on the following packages:
 - matplotlib
 - pandas
 - geopandas
+- rich
 
 ## Examples
 
